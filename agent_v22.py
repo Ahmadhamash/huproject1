@@ -115,10 +115,21 @@ COMMON_EXTENSIONS = {
     '.db', '.sqlite', '.mdb', '.accdb', '.bak', '.tmp', '.dat',
     # Config
     '.ini', '.cfg', '.conf', '.reg', '.inf', '.plist',
+    # Windows System — اللي كانت تسبب false positives
+    '.etl', '.evtx', '.blf', '.regtrans-ms', '.log1', '.log2',
+    '.wct', '.dmp', '.mdmp', '.hdmp', '.ndf', '.mdf', '.ldf',
+    '.edb', '.stm', '.chk', '.jrs', '.pat', '.cat', '.man',
+    '.mui', '.mum', '.sdb', '.ttf', '.ttc', '.otf', '.woff', '.woff2',
+    # Application Logs
+    '.aodl', '.olk', '.ost', '.pst', '.eml', '.msg', '.nst',
+    '.one', '.onepkg', '.onetoc', '.onetoc2',
+    # Development
+    '.sln', '.csproj', '.pyc', '.class', '.vsctmp', '.suo',
+    '.o', '.obj', '.lib', '.a', '.so', '.dylib', '.pdb',
+    '.ilk', '.exp', '.idb', '.tlog', '.lastbuildstate',
     # Misc
     '.lnk', '.url', '.desktop', '.cer', '.pem', '.key', '.crt',
-    '.vsctmp', '.suo', '.sln', '.csproj', '.pyc', '.class',
-    '.o', '.obj', '.lib', '.a', '.so', '.dylib',
+    '.cab', '.msp', '.mst', '.manifest', '.config',
 }
 
 # ══════════════════════════════════════════════════════════
@@ -680,7 +691,8 @@ class Engine:
 
             # L2g: Novel/Anomalous Extensions — امتدادات شاذة مش معروفة
             nec = w.get('novel_ext_count', 0)
-            if (elapsed >= WINDOW_FAST and nec >= 3 and w['fd'] >= 2):
+            if (elapsed >= WINDOW_FAST and nec >= 3 and w['fd'] >= 2
+                    and w['had_user_ops']):
                 # تحقق إن في امتداد واحد على الأقل تكرر ≥3 مرات
                 top_ext = ''
                 top_cnt = 0
