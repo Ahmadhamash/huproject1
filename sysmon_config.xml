@@ -1,0 +1,105 @@
+<Sysmon schemaversion="4.90">
+  <EventFiltering>
+    <!-- EventID 1: Process Create — exclude noisy system processes -->
+    <RuleGroup name="ProcessCreate" groupRelation="or">
+      <ProcessCreate onmatch="exclude">
+        <Image condition="is">C:\Windows\System32\svchost.exe</Image>
+        <Image condition="is">C:\Windows\System32\RuntimeBroker.exe</Image>
+        <Image condition="is">C:\Windows\System32\taskhostw.exe</Image>
+        <Image condition="is">C:\Windows\System32\backgroundTaskHost.exe</Image>
+        <Image condition="is">C:\Windows\System32\SearchProtocolHost.exe</Image>
+        <Image condition="is">C:\Windows\System32\SearchFilterHost.exe</Image>
+        <Image condition="is">C:\Windows\System32\WmiPrvSE.exe</Image>
+        <Image condition="is">C:\Windows\System32\conhost.exe</Image>
+        <Image condition="is">C:\Windows\System32\dllhost.exe</Image>
+        <Image condition="is">C:\Windows\System32\audiodg.exe</Image>
+        <Image condition="is">C:\Windows\System32\sihost.exe</Image>
+        <Image condition="is">C:\Windows\System32\smartscreen.exe</Image>
+      </ProcessCreate>
+    </RuleGroup>
+
+    <!-- EventID 2: File creation time changed — only user data folders -->
+    <RuleGroup name="FileCreateTime" groupRelation="or">
+      <FileCreateTime onmatch="include">
+        <TargetFilename condition="contains">\Documents\</TargetFilename>
+        <TargetFilename condition="contains">\Desktop\</TargetFilename>
+        <TargetFilename condition="contains">\Pictures\</TargetFilename>
+        <TargetFilename condition="contains">\Downloads\</TargetFilename>
+        <TargetFilename condition="contains">\Videos\</TargetFilename>
+        <TargetFilename condition="contains">\Music\</TargetFilename>
+        <TargetFilename condition="contains">\OneDrive\</TargetFilename>
+      </FileCreateTime>
+    </RuleGroup>
+
+    <!-- EventID 3: Network — exclude localhost and known browsers -->
+    <RuleGroup name="NetworkConnect" groupRelation="or">
+      <NetworkConnect onmatch="exclude">
+        <DestinationIp condition="is">127.0.0.1</DestinationIp>
+        <DestinationIp condition="is">::1</DestinationIp>
+        <Image condition="is">C:\Windows\System32\svchost.exe</Image>
+        <Image condition="contains">\Microsoft\Edge\Application\msedge.exe</Image>
+        <Image condition="contains">\Google\Chrome\Application\chrome.exe</Image>
+        <Image condition="contains">\Mozilla Firefox\firefox.exe</Image>
+      </NetworkConnect>
+    </RuleGroup>
+
+    <!-- EventID 5: Process terminated — log all (lightweight) -->
+    <RuleGroup name="ProcessTerminate" groupRelation="or">
+      <ProcessTerminate onmatch="exclude" />
+    </RuleGroup>
+
+    <!-- EventID 11: File Create — CRITICAL: light filter, keep ransomware signals -->
+    <RuleGroup name="FileCreate" groupRelation="or">
+      <FileCreate onmatch="exclude">
+        <Image condition="is">C:\Windows\System32\svchost.exe</Image>
+        <Image condition="is">C:\Windows\System32\SearchProtocolHost.exe</Image>
+        <TargetFilename condition="contains">\AppData\Local\Microsoft\Windows\Explorer\</TargetFilename>
+        <TargetFilename condition="contains">\AppData\Local\Microsoft\Windows\Notifications\</TargetFilename>
+        <TargetFilename condition="contains">\AppData\Local\Microsoft\Edge\User Data\</TargetFilename>
+        <TargetFilename condition="contains">\AppData\Local\Google\Chrome\User Data\</TargetFilename>
+        <TargetFilename condition="end with">.etl</TargetFilename>
+        <TargetFilename condition="end with">.log</TargetFilename>
+        <TargetFilename condition="contains">\Windows\Prefetch\</TargetFilename>
+        <TargetFilename condition="contains">\Windows\SoftwareDistribution\</TargetFilename>
+      </FileCreate>
+    </RuleGroup>
+
+    <!-- EventID 12,13,14: Registry — only persistence-related keys -->
+    <RuleGroup name="RegistryEvent" groupRelation="or">
+      <RegistryEvent onmatch="include">
+        <TargetObject condition="contains">\CurrentVersion\Run</TargetObject>
+        <TargetObject condition="contains">\CurrentVersion\RunOnce</TargetObject>
+        <TargetObject condition="contains">\Winlogon\</TargetObject>
+        <TargetObject condition="contains">\CurrentControlSet\Services\</TargetObject>
+        <TargetObject condition="contains">\Policies\Microsoft\Windows\</TargetObject>
+      </RegistryEvent>
+    </RuleGroup>
+
+    <!-- EventID 17,18: Pipe events — log all (lightweight) -->
+    <RuleGroup name="PipeEvent" groupRelation="or">
+      <PipeEvent onmatch="exclude" />
+    </RuleGroup>
+
+    <!-- EventID 23: File Delete (archived) — CRITICAL: light filter -->
+    <RuleGroup name="FileDelete" groupRelation="or">
+      <FileDelete onmatch="exclude">
+        <Image condition="is">C:\Windows\System32\svchost.exe</Image>
+        <Image condition="is">C:\Windows\System32\cleanmgr.exe</Image>
+        <TargetFilename condition="end with">.tmp</TargetFilename>
+        <TargetFilename condition="end with">.etl</TargetFilename>
+        <TargetFilename condition="contains">\Windows\Prefetch\</TargetFilename>
+        <TargetFilename condition="contains">\Windows\SoftwareDistribution\</TargetFilename>
+      </FileDelete>
+    </RuleGroup>
+
+    <!-- EventID 26: File Delete Detected — CRITICAL -->
+    <RuleGroup name="FileDeleteDetected" groupRelation="or">
+      <FileDeleteDetected onmatch="exclude">
+        <Image condition="is">C:\Windows\System32\svchost.exe</Image>
+        <Image condition="is">C:\Windows\System32\cleanmgr.exe</Image>
+        <TargetFilename condition="end with">.tmp</TargetFilename>
+        <TargetFilename condition="end with">.etl</TargetFilename>
+      </FileDeleteDetected>
+    </RuleGroup>
+  </EventFiltering>
+</Sysmon>
